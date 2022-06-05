@@ -20,8 +20,32 @@ const DUMMY_MEETUPS = [
         image: 'https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg'
     }
 ]
-const HomePage = () => {
-    return <MeetupList meetups={ DUMMY_MEETUPS } />
+const HomePage = (props) => {
+    return <MeetupList meetups={ props.meetups } />
+}
+
+// Runs on server side
+// export const getServerSideProps = (context) => {
+//     const req = context.req
+//     const res = context.res
+
+//     // fetch data
+//     return {
+//         props: {
+//             meetups: DUMMY_MEETUPS
+//         }
+//     }
+// }
+
+// Runs during build process
+export const getStaticProps = async () => {
+    // fetch data from filesystem, db, api
+    // this will run first
+    return {
+        props: {
+            meetups: DUMMY_MEETUPS
+        }
+    }
 }
 
 export default HomePage
