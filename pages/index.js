@@ -1,25 +1,9 @@
+import { MongoClient } from 'mongodb'
 import MeetupList from '../components/meetups/MeetupList'
 
-const DUMMY_MEETUPS = [
-    {
-        id: '1',
-        title: 'Meetup 1',
-        description: 'Sample Meetup',
-        image: 'https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg'
-    },
-    {
-        id: '2',
-        title: 'Meetup 2',
-        description: 'Sample Second Meetup',
-        image: 'https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg'
-    },
-    {
-        id: '3',
-        title: 'Meetup 3',
-        description: 'Sample Third Meetup',
-        image: 'https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg'
-    }
-]
+export const MONGODB_URL = 'mongodb+srv://test:cFloEewGY8GYf8ad@cluster0.jrdex.mongodb.net/meetups?retryWrites=true&w=majority'
+
+
 const HomePage = (props) => {
     return <MeetupList meetups={ props.meetups } />
 }
@@ -40,10 +24,31 @@ const HomePage = (props) => {
 // Runs during build process
 export const getStaticProps = async () => {
     // fetch data from filesystem, db, api
+    let allMeetups
+
+    try {
+        const client = await MongoClient.connect(MONGODB_URL)
+        const db = client.db()
+
+        const meetups = db.collection('meetup')
+        allMeetups = await meetups.find().toArray()
+        client.close()
+    } catch (e) {
+        console.log(e)
+    }
+
     // this will run first
     return {
         props: {
-            meetups: DUMMY_MEETUPS
+            meetups: allMeetups.map((meetup) => {
+                return {
+                    title: meetup.title,
+                    address: meetup.address,
+                    description: meetup.description,
+                    image: meetup.image,
+                    id: meetup._id.toString()
+                }
+            })
         }
     }
 }

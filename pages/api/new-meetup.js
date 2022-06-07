@@ -1,6 +1,5 @@
 import { MongoClient } from 'mongodb'
-
-const MONGODB_URL = 'mongodb+srv://test:2J9D7lIGt1eHHJBM@cluster0.jrdex.mongodb.net/meetups?retryWrites=true&w=majority'
+import { MONGODB_URL } from '../index'
 
 // POST API route - /api/new-meetup
 const handler = async (req, res) => {
