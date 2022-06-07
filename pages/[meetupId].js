@@ -1,48 +1,70 @@
-import { useRouter } from 'next/router'
+import { MongoClient, ObjectId } from 'mongodb'
 import MeetupDetail from '../components/meetups/MeetupDetail'
+import { MONGODB_URL } from './index'
 
-const MeetupDetails = () => {
-    const router = useRouter()
-
+const MeetupDetails = (props) => {
     return <MeetupDetail 
-                image='https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg'
-                title='First Meetup'
-                address='Sec 49, Gurgaon'
-                description='Sample Meetup'
+                image={props.meetupData.image}
+                title={props.meetupData.title}
+                address={props.meetupData.address}
+                description={props.meetupData.description}
             />
 }
 
 
-export function getStaticPaths() {
+export async function getStaticPaths() {
+    // we need a list of ids
+
+    let allMeetups
+
+    try {
+        const client = await MongoClient.connect(MONGODB_URL)
+        const db = client.db()
+
+        const meetups = db.collection('meetup')
+        allMeetups = await meetups.find({}, {_id: 1}).toArray()
+        client.close()
+    } catch (e) {
+        console.log(e)
+    }
+
     return {
         fallback: false,
-        paths: [
-            {
+        paths: allMeetups.map((meetup) => {
+            return {
                 params: {
-                    meetupId: '1'
+                    meetupId: meetup._id.toString()
                 }
-            },
-            {
-                params: {
-                    meetupId: '2'
-                }
-            },
-        ]
+            }
+        })
     }
 }
 
-export function getStaticProps(context) {
+export async function getStaticProps(context) {
     const meetupId = context.params.meetupId
     console.log(meetupId)
     // get details
+    let meetup
+
+    try {
+        const client = await MongoClient.connect(MONGODB_URL)
+        const db = client.db()
+
+        const meetups = db.collection('meetup')
+        meetup = await meetups.findOne({_id: ObjectId(meetupId)})
+        client.close()
+    } catch (e) {
+        console.log(e)
+    }
+
     return {
         props: {
             meetupData: {
-                image: 'https://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg',
-                id: meetupId,
-                title: 'First Meetup',
-                description: 'To be held at Ggn',
-                address: 'Emerald Hills'
+                id: meetup._id.toString(),
+                title: meetup.title,
+                description: meetup.description,
+                address: meetup.address,
+                image: meetup.image
             }
         }
     }
