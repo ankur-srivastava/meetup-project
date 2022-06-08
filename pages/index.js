@@ -1,11 +1,19 @@
+import { Fragment } from 'react'
+import Head from 'next/head'
 import { MongoClient } from 'mongodb'
 import MeetupList from '../components/meetups/MeetupList'
 
-export const MONGODB_URL = 'mongodb+srv://test:cFloEewGY8GYf8ad@cluster0.jrdex.mongodb.net/meetups?retryWrites=true&w=majority'
+export const MONGODB_URL = 'mongodb+srv://test:BMUMVXQJxd9aiB5I@cluster0.jrdex.mongodb.net/meetups?retryWrites=true&w=majority'
 
 
 const HomePage = (props) => {
-    return <MeetupList meetups={ props.meetups } />
+    return <Fragment>
+        <Head>
+            <title>Home Page</title>
+            <meta name='description' content='Meetup List' />
+        </Head>
+        <MeetupList meetups={ props.meetups } />
+    </Fragment>
 }
 
 // Runs on server side
